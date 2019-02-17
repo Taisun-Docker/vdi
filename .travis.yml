@@ -13,6 +13,7 @@ env:
 jobs:
   include:
     - stage: BuildBionic
+      if: (NOT (type IN (pull_request)))
       env:
         - DOCKER_TAG="ubuntu-bionic"
         - DOCKER_PATH="ubuntu/bionic/"
@@ -24,143 +25,61 @@ jobs:
         - wget https://s3-us-west-2.amazonaws.com/taisun-builds/qemu/qemu-arm-static
         - chmod +x qemu-*
         # Build the Ubuntu Bionic against the 3 architectures
-        - docker build --no-cache -f ${DOCKER_PATH}Dockerfile.amd64 -t ${DOCKERHUB_LIVE}:amd64-${TRAVIS_COMMIT}-${DOCKER_TAG} .
-        - docker build --no-cache -f ${DOCKER_PATH}Dockerfile.armhf -t ${DOCKERHUB_LIVE}:arm32v6-${TRAVIS_COMMIT}-${DOCKER_TAG} .
-        - docker build --no-cache -f ${DOCKER_PATH}Dockerfile.aarch64 -t ${DOCKERHUB_LIVE}:arm64v8-${TRAVIS_COMMIT}-${DOCKER_TAG} .
+        - docker build --no-cache -f ubuntu/bionic/Dockerfile.amd64 -t ${DOCKERHUB_LIVE}:amd64-${TRAVIS_COMMIT}-ubuntu-bionic .
+        - docker build --no-cache -f ubuntu/bionic/Dockerfile.armhf -t ${DOCKERHUB_LIVE}:arm32v6-${TRAVIS_COMMIT}-ubuntu-bionic .
+        - docker build --no-cache -f ubuntu/bionic/Dockerfile.aarch64 -t ${DOCKERHUB_LIVE}:arm64v8-${TRAVIS_COMMIT}-ubuntu-bionic .
         # Tag these builds to latest
-        - docker tag ${DOCKERHUB_LIVE}:amd64-${TRAVIS_COMMIT}-${DOCKER_TAG} ${DOCKERHUB_LIVE}:amd64-${DOCKER_TAG}
-        - docker tag ${DOCKERHUB_LIVE}:arm32v6-${TRAVIS_COMMIT}-${DOCKER_TAG} ${DOCKERHUB_LIVE}:arm32v6-${DOCKER_TAG}
-        - docker tag ${DOCKERHUB_LIVE}:arm64v8-${TRAVIS_COMMIT}-${DOCKER_TAG} ${DOCKERHUB_LIVE}:arm64v8-${DOCKER_TAG}
+        - docker tag ${DOCKERHUB_LIVE}:amd64-${TRAVIS_COMMIT}-ubuntu-bionic ${DOCKERHUB_LIVE}:amd64-ubuntu-bionic
+        - docker tag ${DOCKERHUB_LIVE}:arm32v6-${TRAVIS_COMMIT}-ubuntu-bionic ${DOCKERHUB_LIVE}:arm32v6-ubuntu-bionic
+        - docker tag ${DOCKERHUB_LIVE}:arm64v8-${TRAVIS_COMMIT}-ubuntu-bionic ${DOCKERHUB_LIVE}:arm64v8-ubuntu-bionic
         # Login to DockerHub
         - echo $DOCKERPASS | docker login -u $DOCKERUSER --password-stdin
         # Push all of the tags
-        - docker push ${DOCKERHUB_LIVE}:amd64-${TRAVIS_COMMIT}-${DOCKER_TAG}
-        - docker push ${DOCKERHUB_LIVE}:arm32v6-${TRAVIS_COMMIT}-${DOCKER_TAG}
-        - docker push ${DOCKERHUB_LIVE}:arm64v8-${TRAVIS_COMMIT}-${DOCKER_TAG}
-        - docker push ${DOCKERHUB_LIVE}:amd64-${DOCKER_TAG}
-        - docker push ${DOCKERHUB_LIVE}:arm32v6-${DOCKER_TAG}
-        - docker push ${DOCKERHUB_LIVE}:arm64v8-${DOCKER_TAG}
+        - docker push ${DOCKERHUB_LIVE}:amd64-${TRAVIS_COMMIT}-ubuntu-bionic
+        - docker push ${DOCKERHUB_LIVE}:arm32v6-${TRAVIS_COMMIT}-ubuntu-bionic
+        - docker push ${DOCKERHUB_LIVE}:arm64v8-${TRAVIS_COMMIT}-ubuntu-bionic
+        - docker push ${DOCKERHUB_LIVE}:amd64-ubuntu-bionic
+        - docker push ${DOCKERHUB_LIVE}:arm32v6-ubuntu-bionic
+        - docker push ${DOCKERHUB_LIVE}:arm64v8-ubuntu-bionic
         # Generate local manifests for tag and at commit
-        - docker manifest create ${DOCKERHUB_LIVE}:${DOCKER_TAG} ${DOCKERHUB_LIVE}:amd64-${DOCKER_TAG} ${DOCKERHUB_LIVE}:arm32v6-${DOCKER_TAG} ${DOCKERHUB_LIVE}:arm64v8-${DOCKER_TAG}
-        - docker manifest annotate ${DOCKERHUB_LIVE}:${DOCKER_TAG} ${DOCKERHUB_LIVE}:arm32v6-${DOCKER_TAG} --os linux --arch arm
-        - docker manifest annotate ${DOCKERHUB_LIVE}:${DOCKER_TAG} ${DOCKERHUB_LIVE}:arm64v8-${DOCKER_TAG} --os linux --arch arm64 --variant armv8
-        - docker manifest create ${DOCKERHUB_LIVE}:${TRAVIS_COMMIT}-${DOCKER_TAG} ${DOCKERHUB_LIVE}:amd64-${TRAVIS_COMMIT}-${DOCKER_TAG} ${DOCKERHUB_LIVE}:arm32v6-${TRAVIS_COMMIT}-${DOCKER_TAG} ${DOCKERHUB_LIVE}:arm64v8-${TRAVIS_COMMIT}-${DOCKER_TAG}
-        - docker manifest annotate ${DOCKERHUB_LIVE}:${TRAVIS_COMMIT}-${DOCKER_TAG} ${DOCKERHUB_LIVE}:arm32v6-${TRAVIS_COMMIT}-${DOCKER_TAG} --os linux --arch arm
-        - docker manifest annotate ${DOCKERHUB_LIVE}:${TRAVIS_COMMIT}-${DOCKER_TAG} ${DOCKERHUB_LIVE}:arm64v8-${TRAVIS_COMMIT}-${DOCKER_TAG} --os linux --arch arm64 --variant armv8
+        - docker manifest create ${DOCKERHUB_LIVE}:ubuntu-bionic ${DOCKERHUB_LIVE}:amd64-ubuntu-bionic ${DOCKERHUB_LIVE}:arm32v6-ubuntu-bionic ${DOCKERHUB_LIVE}:arm64v8-ubuntu-bionic
+        - docker manifest annotate ${DOCKERHUB_LIVE}:ubuntu-bionic ${DOCKERHUB_LIVE}:arm32v6-ubuntu-bionic --os linux --arch arm
+        - docker manifest annotate ${DOCKERHUB_LIVE}:ubuntu-bionic ${DOCKERHUB_LIVE}:arm64v8-ubuntu-bionic --os linux --arch arm64 --variant armv8
+        - docker manifest create ${DOCKERHUB_LIVE}:${TRAVIS_COMMIT}-ubuntu-bionic ${DOCKERHUB_LIVE}:amd64-${TRAVIS_COMMIT}-ubuntu-bionic ${DOCKERHUB_LIVE}:arm32v6-${TRAVIS_COMMIT}-ubuntu-bionic ${DOCKERHUB_LIVE}:arm64v8-${TRAVIS_COMMIT}-ubuntu-bionic
+        - docker manifest annotate ${DOCKERHUB_LIVE}:${TRAVIS_COMMIT}-ubuntu-bionic ${DOCKERHUB_LIVE}:arm32v6-${TRAVIS_COMMIT}-ubuntu-bionic --os linux --arch arm
+        - docker manifest annotate ${DOCKERHUB_LIVE}:${TRAVIS_COMMIT}-ubuntu-bionic ${DOCKERHUB_LIVE}:arm64v8-${TRAVIS_COMMIT}-ubuntu-bionic --os linux --arch arm64 --variant armv8
         # Push the manifests to these meta tags
-        - docker manifest push ${DOCKERHUB_LIVE}:${DOCKER_TAG}
-        - docker manifest push ${DOCKERHUB_LIVE}:${TRAVIS_COMMIT}-${DOCKER_TAG}
-    - stage: BuildXenial
-      env:
-        - DOCKER_TAG="ubuntu-xenial"
-        - DOCKER_PATH="ubuntu/xenial/"
-      before_install:
-        - /bin/bash pre_install
+        - docker manifest push ${DOCKERHUB_LIVE}:ubuntu-bionic
+        - docker manifest push ${DOCKERHUB_LIVE}:${TRAVIS_COMMIT}-ubuntu-bionic
       script:
         # Grab the qemu binaries
         - wget https://s3-us-west-2.amazonaws.com/taisun-builds/qemu/qemu-aarch64-static
         - wget https://s3-us-west-2.amazonaws.com/taisun-builds/qemu/qemu-arm-static
         - chmod +x qemu-*
-        # Build the Ubuntu Bionic against the 3 architectures
-        - docker build --no-cache -f ${DOCKER_PATH}Dockerfile.amd64 -t ${DOCKERHUB_LIVE}:amd64-${TRAVIS_COMMIT}-${DOCKER_TAG} .
-        - docker build --no-cache -f ${DOCKER_PATH}Dockerfile.armhf -t ${DOCKERHUB_LIVE}:arm32v6-${TRAVIS_COMMIT}-${DOCKER_TAG} .
-        - docker build --no-cache -f ${DOCKER_PATH}Dockerfile.aarch64 -t ${DOCKERHUB_LIVE}:arm64v8-${TRAVIS_COMMIT}-${DOCKER_TAG} .
+        # Build the Ubuntu xenial against the 3 architectures
+        - docker build --no-cache -f ubuntu/xenial/Dockerfile.amd64 -t ${DOCKERHUB_LIVE}:amd64-${TRAVIS_COMMIT}-ubuntu-xenial .
+        - docker build --no-cache -f ubuntu/xenial/Dockerfile.armhf -t ${DOCKERHUB_LIVE}:arm32v6-${TRAVIS_COMMIT}-ubuntu-xenial .
+        - docker build --no-cache -f ubuntu/xenial/Dockerfile.aarch64 -t ${DOCKERHUB_LIVE}:arm64v8-${TRAVIS_COMMIT}-ubuntu-xenial .
         # Tag these builds to latest
-        - docker tag ${DOCKERHUB_LIVE}:amd64-${TRAVIS_COMMIT}-${DOCKER_TAG} ${DOCKERHUB_LIVE}:amd64-${DOCKER_TAG}
-        - docker tag ${DOCKERHUB_LIVE}:arm32v6-${TRAVIS_COMMIT}-${DOCKER_TAG} ${DOCKERHUB_LIVE}:arm32v6-${DOCKER_TAG}
-        - docker tag ${DOCKERHUB_LIVE}:arm64v8-${TRAVIS_COMMIT}-${DOCKER_TAG} ${DOCKERHUB_LIVE}:arm64v8-${DOCKER_TAG}
+        - docker tag ${DOCKERHUB_LIVE}:amd64-${TRAVIS_COMMIT}-ubuntu-xenial ${DOCKERHUB_LIVE}:amd64-ubuntu-xenial
+        - docker tag ${DOCKERHUB_LIVE}:arm32v6-${TRAVIS_COMMIT}-ubuntu-xenial ${DOCKERHUB_LIVE}:arm32v6-ubuntu-xenial
+        - docker tag ${DOCKERHUB_LIVE}:arm64v8-${TRAVIS_COMMIT}-ubuntu-xenial ${DOCKERHUB_LIVE}:arm64v8-ubuntu-xenial
         # Login to DockerHub
         - echo $DOCKERPASS | docker login -u $DOCKERUSER --password-stdin
         # Push all of the tags
-        - docker push ${DOCKERHUB_LIVE}:amd64-${TRAVIS_COMMIT}-${DOCKER_TAG}
-        - docker push ${DOCKERHUB_LIVE}:arm32v6-${TRAVIS_COMMIT}-${DOCKER_TAG}
-        - docker push ${DOCKERHUB_LIVE}:arm64v8-${TRAVIS_COMMIT}-${DOCKER_TAG}
-        - docker push ${DOCKERHUB_LIVE}:amd64-${DOCKER_TAG}
-        - docker push ${DOCKERHUB_LIVE}:arm32v6-${DOCKER_TAG}
-        - docker push ${DOCKERHUB_LIVE}:arm64v8-${DOCKER_TAG}
+        - docker push ${DOCKERHUB_LIVE}:amd64-${TRAVIS_COMMIT}-ubuntu-xenial
+        - docker push ${DOCKERHUB_LIVE}:arm32v6-${TRAVIS_COMMIT}-ubuntu-xenial
+        - docker push ${DOCKERHUB_LIVE}:arm64v8-${TRAVIS_COMMIT}-ubuntu-xenial
+        - docker push ${DOCKERHUB_LIVE}:amd64-ubuntu-xenial
+        - docker push ${DOCKERHUB_LIVE}:arm32v6-ubuntu-xenial
+        - docker push ${DOCKERHUB_LIVE}:arm64v8-ubuntu-xenial
         # Generate local manifests for tag and at commit
-        - docker manifest create ${DOCKERHUB_LIVE}:${DOCKER_TAG} ${DOCKERHUB_LIVE}:amd64-${DOCKER_TAG} ${DOCKERHUB_LIVE}:arm32v6-${DOCKER_TAG} ${DOCKERHUB_LIVE}:arm64v8-${DOCKER_TAG}
-        - docker manifest annotate ${DOCKERHUB_LIVE}:${DOCKER_TAG} ${DOCKERHUB_LIVE}:arm32v6-${DOCKER_TAG} --os linux --arch arm
-        - docker manifest annotate ${DOCKERHUB_LIVE}:${DOCKER_TAG} ${DOCKERHUB_LIVE}:arm64v8-${DOCKER_TAG} --os linux --arch arm64 --variant armv8
-        - docker manifest create ${DOCKERHUB_LIVE}:${TRAVIS_COMMIT}-${DOCKER_TAG} ${DOCKERHUB_LIVE}:amd64-${TRAVIS_COMMIT}-${DOCKER_TAG} ${DOCKERHUB_LIVE}:arm32v6-${TRAVIS_COMMIT}-${DOCKER_TAG} ${DOCKERHUB_LIVE}:arm64v8-${TRAVIS_COMMIT}-${DOCKER_TAG}
-        - docker manifest annotate ${DOCKERHUB_LIVE}:${TRAVIS_COMMIT}-${DOCKER_TAG} ${DOCKERHUB_LIVE}:arm32v6-${TRAVIS_COMMIT}-${DOCKER_TAG} --os linux --arch arm
-        - docker manifest annotate ${DOCKERHUB_LIVE}:${TRAVIS_COMMIT}-${DOCKER_TAG} ${DOCKERHUB_LIVE}:arm64v8-${TRAVIS_COMMIT}-${DOCKER_TAG} --os linux --arch arm64 --variant armv8
+        - docker manifest create ${DOCKERHUB_LIVE}:ubuntu-xenial ${DOCKERHUB_LIVE}:amd64-ubuntu-xenial ${DOCKERHUB_LIVE}:arm32v6-ubuntu-xenial ${DOCKERHUB_LIVE}:arm64v8-ubuntu-xenial
+        - docker manifest annotate ${DOCKERHUB_LIVE}:ubuntu-xenial ${DOCKERHUB_LIVE}:arm32v6-ubuntu-xenial --os linux --arch arm
+        - docker manifest annotate ${DOCKERHUB_LIVE}:ubuntu-xenial ${DOCKERHUB_LIVE}:arm64v8-ubuntu-xenial --os linux --arch arm64 --variant armv8
+        - docker manifest create ${DOCKERHUB_LIVE}:${TRAVIS_COMMIT}-ubuntu-xenial ${DOCKERHUB_LIVE}:amd64-${TRAVIS_COMMIT}-ubuntu-xenial ${DOCKERHUB_LIVE}:arm32v6-${TRAVIS_COMMIT}-ubuntu-xenial ${DOCKERHUB_LIVE}:arm64v8-${TRAVIS_COMMIT}-ubuntu-xenial
+        - docker manifest annotate ${DOCKERHUB_LIVE}:${TRAVIS_COMMIT}-ubuntu-xenial ${DOCKERHUB_LIVE}:arm32v6-${TRAVIS_COMMIT}-ubuntu-xenial --os linux --arch arm
+        - docker manifest annotate ${DOCKERHUB_LIVE}:${TRAVIS_COMMIT}-ubuntu-xenial ${DOCKERHUB_LIVE}:arm64v8-${TRAVIS_COMMIT}-ubuntu-xenial --os linux --arch arm64 --variant armv8
         # Push the manifests to these meta tags
-        - docker manifest push ${DOCKERHUB_LIVE}:${DOCKER_TAG}
-        - docker manifest push ${DOCKERHUB_LIVE}:${TRAVIS_COMMIT}-${DOCKER_TAG}
-    - stage: BuildJessie
-      env:
-        - DOCKER_TAG="debian-jessie"
-        - DOCKER_PATH="debian/jessie/"
-      before_install:
-        - /bin/bash pre_install
-      script:
-        # Grab the qemu binaries
-        - wget https://s3-us-west-2.amazonaws.com/taisun-builds/qemu/qemu-aarch64-static
-        - wget https://s3-us-west-2.amazonaws.com/taisun-builds/qemu/qemu-arm-static
-        - chmod +x qemu-*
-        # Build the Ubuntu Bionic against the 3 architectures
-        - docker build --no-cache -f ${DOCKER_PATH}Dockerfile.amd64 -t ${DOCKERHUB_LIVE}:amd64-${TRAVIS_COMMIT}-${DOCKER_TAG} .
-        - docker build --no-cache -f ${DOCKER_PATH}Dockerfile.armhf -t ${DOCKERHUB_LIVE}:arm32v6-${TRAVIS_COMMIT}-${DOCKER_TAG} .
-        - docker build --no-cache -f ${DOCKER_PATH}Dockerfile.aarch64 -t ${DOCKERHUB_LIVE}:arm64v8-${TRAVIS_COMMIT}-${DOCKER_TAG} .
-        # Tag these builds to latest
-        - docker tag ${DOCKERHUB_LIVE}:amd64-${TRAVIS_COMMIT}-${DOCKER_TAG} ${DOCKERHUB_LIVE}:amd64-${DOCKER_TAG}
-        - docker tag ${DOCKERHUB_LIVE}:arm32v6-${TRAVIS_COMMIT}-${DOCKER_TAG} ${DOCKERHUB_LIVE}:arm32v6-${DOCKER_TAG}
-        - docker tag ${DOCKERHUB_LIVE}:arm64v8-${TRAVIS_COMMIT}-${DOCKER_TAG} ${DOCKERHUB_LIVE}:arm64v8-${DOCKER_TAG}
-        # Login to DockerHub
-        - echo $DOCKERPASS | docker login -u $DOCKERUSER --password-stdin
-        # Push all of the tags
-        - docker push ${DOCKERHUB_LIVE}:amd64-${TRAVIS_COMMIT}-${DOCKER_TAG}
-        - docker push ${DOCKERHUB_LIVE}:arm32v6-${TRAVIS_COMMIT}-${DOCKER_TAG}
-        - docker push ${DOCKERHUB_LIVE}:arm64v8-${TRAVIS_COMMIT}-${DOCKER_TAG}
-        - docker push ${DOCKERHUB_LIVE}:amd64-${DOCKER_TAG}
-        - docker push ${DOCKERHUB_LIVE}:arm32v6-${DOCKER_TAG}
-        - docker push ${DOCKERHUB_LIVE}:arm64v8-${DOCKER_TAG}
-        # Generate local manifests for tag and at commit
-        - docker manifest create ${DOCKERHUB_LIVE}:${DOCKER_TAG} ${DOCKERHUB_LIVE}:amd64-${DOCKER_TAG} ${DOCKERHUB_LIVE}:arm32v6-${DOCKER_TAG} ${DOCKERHUB_LIVE}:arm64v8-${DOCKER_TAG}
-        - docker manifest annotate ${DOCKERHUB_LIVE}:${DOCKER_TAG} ${DOCKERHUB_LIVE}:arm32v6-${DOCKER_TAG} --os linux --arch arm
-        - docker manifest annotate ${DOCKERHUB_LIVE}:${DOCKER_TAG} ${DOCKERHUB_LIVE}:arm64v8-${DOCKER_TAG} --os linux --arch arm64 --variant armv8
-        - docker manifest create ${DOCKERHUB_LIVE}:${TRAVIS_COMMIT}-${DOCKER_TAG} ${DOCKERHUB_LIVE}:amd64-${TRAVIS_COMMIT}-${DOCKER_TAG} ${DOCKERHUB_LIVE}:arm32v6-${TRAVIS_COMMIT}-${DOCKER_TAG} ${DOCKERHUB_LIVE}:arm64v8-${TRAVIS_COMMIT}-${DOCKER_TAG}
-        - docker manifest annotate ${DOCKERHUB_LIVE}:${TRAVIS_COMMIT}-${DOCKER_TAG} ${DOCKERHUB_LIVE}:arm32v6-${TRAVIS_COMMIT}-${DOCKER_TAG} --os linux --arch arm
-        - docker manifest annotate ${DOCKERHUB_LIVE}:${TRAVIS_COMMIT}-${DOCKER_TAG} ${DOCKERHUB_LIVE}:arm64v8-${TRAVIS_COMMIT}-${DOCKER_TAG} --os linux --arch arm64 --variant armv8
-        # Push the manifests to these meta tags
-        - docker manifest push ${DOCKERHUB_LIVE}:${DOCKER_TAG}
-        - docker manifest push ${DOCKERHUB_LIVE}:${TRAVIS_COMMIT}-${DOCKER_TAG}
-    - stage: BuildStretch
-      env:
-        - DOCKER_TAG="debian-streatch"
-        - DOCKER_PATH="debian/stretch/"
-      before_install:
-        - /bin/bash pre_install
-      script:
-        # Grab the qemu binaries
-        - wget https://s3-us-west-2.amazonaws.com/taisun-builds/qemu/qemu-aarch64-static
-        - wget https://s3-us-west-2.amazonaws.com/taisun-builds/qemu/qemu-arm-static
-        - chmod +x qemu-*
-        # Build the Ubuntu Bionic against the 3 architectures
-        - docker build --no-cache -f ${DOCKER_PATH}Dockerfile.amd64 -t ${DOCKERHUB_LIVE}:amd64-${TRAVIS_COMMIT}-${DOCKER_TAG} .
-        - docker build --no-cache -f ${DOCKER_PATH}Dockerfile.armhf -t ${DOCKERHUB_LIVE}:arm32v6-${TRAVIS_COMMIT}-${DOCKER_TAG} .
-        - docker build --no-cache -f ${DOCKER_PATH}Dockerfile.aarch64 -t ${DOCKERHUB_LIVE}:arm64v8-${TRAVIS_COMMIT}-${DOCKER_TAG} .
-        # Tag these builds to latest
-        - docker tag ${DOCKERHUB_LIVE}:amd64-${TRAVIS_COMMIT}-${DOCKER_TAG} ${DOCKERHUB_LIVE}:amd64-${DOCKER_TAG}
-        - docker tag ${DOCKERHUB_LIVE}:arm32v6-${TRAVIS_COMMIT}-${DOCKER_TAG} ${DOCKERHUB_LIVE}:arm32v6-${DOCKER_TAG}
-        - docker tag ${DOCKERHUB_LIVE}:arm64v8-${TRAVIS_COMMIT}-${DOCKER_TAG} ${DOCKERHUB_LIVE}:arm64v8-${DOCKER_TAG}
-        # Login to DockerHub
-        - echo $DOCKERPASS | docker login -u $DOCKERUSER --password-stdin
-        # Push all of the tags
-        - docker push ${DOCKERHUB_LIVE}:amd64-${TRAVIS_COMMIT}-${DOCKER_TAG}
-        - docker push ${DOCKERHUB_LIVE}:arm32v6-${TRAVIS_COMMIT}-${DOCKER_TAG}
-        - docker push ${DOCKERHUB_LIVE}:arm64v8-${TRAVIS_COMMIT}-${DOCKER_TAG}
-        - docker push ${DOCKERHUB_LIVE}:amd64-${DOCKER_TAG}
-        - docker push ${DOCKERHUB_LIVE}:arm32v6-${DOCKER_TAG}
-        - docker push ${DOCKERHUB_LIVE}:arm64v8-${DOCKER_TAG}
-        # Generate local manifests for tag and at commit
-        - docker manifest create ${DOCKERHUB_LIVE}:${DOCKER_TAG} ${DOCKERHUB_LIVE}:amd64-${DOCKER_TAG} ${DOCKERHUB_LIVE}:arm32v6-${DOCKER_TAG} ${DOCKERHUB_LIVE}:arm64v8-${DOCKER_TAG}
-        - docker manifest annotate ${DOCKERHUB_LIVE}:${DOCKER_TAG} ${DOCKERHUB_LIVE}:arm32v6-${DOCKER_TAG} --os linux --arch arm
-        - docker manifest annotate ${DOCKERHUB_LIVE}:${DOCKER_TAG} ${DOCKERHUB_LIVE}:arm64v8-${DOCKER_TAG} --os linux --arch arm64 --variant armv8
-        - docker manifest create ${DOCKERHUB_LIVE}:${TRAVIS_COMMIT}-${DOCKER_TAG} ${DOCKERHUB_LIVE}:amd64-${TRAVIS_COMMIT}-${DOCKER_TAG} ${DOCKERHUB_LIVE}:arm32v6-${TRAVIS_COMMIT}-${DOCKER_TAG} ${DOCKERHUB_LIVE}:arm64v8-${TRAVIS_COMMIT}-${DOCKER_TAG}
-        - docker manifest annotate ${DOCKERHUB_LIVE}:${TRAVIS_COMMIT}-${DOCKER_TAG} ${DOCKERHUB_LIVE}:arm32v6-${TRAVIS_COMMIT}-${DOCKER_TAG} --os linux --arch arm
-        - docker manifest annotate ${DOCKERHUB_LIVE}:${TRAVIS_COMMIT}-${DOCKER_TAG} ${DOCKERHUB_LIVE}:arm64v8-${TRAVIS_COMMIT}-${DOCKER_TAG} --os linux --arch arm64 --variant armv8
-        # Push the manifests to these meta tags
-        - docker manifest push ${DOCKERHUB_LIVE}:${DOCKER_TAG}
-        - docker manifest push ${DOCKERHUB_LIVE}:${TRAVIS_COMMIT}-${DOCKER_TAG}
+        - docker manifest push ${DOCKERHUB_LIVE}:ubuntu-xenial
+        - docker manifest push ${DOCKERHUB_LIVE}:${TRAVIS_COMMIT}-ubuntu-xenial

@@ -1,0 +1,16 @@
+#!/usr/bin/with-contenv bash
+
+# tty hack
+exec >/dev/tty 2>/dev/tty </dev/tty || :
+
+# default file copies first run
+[[ ! -d /config/.config ]] && \
+	cp -ax /defaults/config /config/.config && \
+	cp /defaults/xscreensaver /config/.xscreensaver && \
+        cp /defaults/bashrc /config/.bashrc && \
+	chsh abc -s /bin/bash
+
+# permissions
+PERM=$(stat -c '%U' /config/.config)
+[[ "${PERM}" != "abc" ]] && \
+	chown -R abc:abc /config
