@@ -3,6 +3,10 @@
 # tty hack
 exec >/dev/tty 2>/dev/tty </dev/tty || :
 
+# Give abc a passwordless sudo shell
+sed -e 's/%sudo ALL=(ALL:ALL) ALL/%sudo ALL=(ALL:ALL) NOPASSWD: ALL/g' \
+  -i /etc/sudoers
+
 # default file copies first run
 [[ ! -d /config/.config ]] && \
 	cp -ax /defaults/config /config/.config && \
