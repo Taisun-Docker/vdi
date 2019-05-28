@@ -52,7 +52,7 @@ RUN \
 	/tmp/*
 
 # add local files
-COPY /ubunturootroot /
+COPY /ubunturoot /
 
 # ports and volumes
 EXPOSE 3389
