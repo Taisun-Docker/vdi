@@ -1,0 +1,4 @@
+#!/usr/bin/with-contenv bash
+
+DISPLAY=:1 HOME=/config exec \
+	s6-setuidgid abc startxfce4

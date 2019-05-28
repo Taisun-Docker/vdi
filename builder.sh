@@ -2,12 +2,8 @@
 DOCKER_TAG=$1
 DOCKER_PATH=$2
 
-# Grab the qemu binaries
-wget https://s3-us-west-2.amazonaws.com/taisun-builds/qemu/qemu-aarch64-static
-wget https://s3-us-west-2.amazonaws.com/taisun-builds/qemu/qemu-arm-static
-chmod +x qemu-*
 # Build the Ubuntu Bionic against the 3 architectures
-docker build --no-cache -f ${DOCKER_PATH}Dockerfile.amd64 -t ${DOCKERHUB_LIVE}:amd64-${TRAVIS_COMMIT}-${DOCKER_TAG} .
+docker build --no-cache -f ${DOCKER_PATH}Dockerfile -t ${DOCKERHUB_LIVE}:amd64-${TRAVIS_COMMIT}-${DOCKER_TAG} .
 docker build --no-cache -f ${DOCKER_PATH}Dockerfile.armhf -t ${DOCKERHUB_LIVE}:arm32v6-${TRAVIS_COMMIT}-${DOCKER_TAG} .
 docker build --no-cache -f ${DOCKER_PATH}Dockerfile.aarch64 -t ${DOCKERHUB_LIVE}:arm64v8-${TRAVIS_COMMIT}-${DOCKER_TAG} .
 # Tag these builds to latest

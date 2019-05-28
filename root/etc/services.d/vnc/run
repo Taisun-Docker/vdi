@@ -1,3 +1,0 @@
-#!/usr/bin/with-contenv bash
-
-/usr/bin/x11vnc -shared -forever -display :0.0 -rfbport 5900

@@ -1,0 +1,5 @@
+#!/usr/bin/with-contenv bash
+
+# Execute openbox
+DISPLAY=:1 HOME=/config exec \
+	s6-setuidgid abc /usr/bin/openbox-session

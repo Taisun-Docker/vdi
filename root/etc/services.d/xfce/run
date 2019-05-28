@@ -1,3 +1,0 @@
-#!/usr/bin/with-contenv bash
-
-su abc -c 'DISPLAY=:0 startxfce4'

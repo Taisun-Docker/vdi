@@ -8,16 +8,16 @@ services:
 env:
   global:
     - DEBIAN_FRONTEND="noninteractive"
-    - DOCKERHUB_LIVE="taisun/vdi"
+    - DOCKERHUB_LIVE="taisun/vdi-rdp"
 
 jobs:
   include:
     - stage: "Build Containers"
-      name: "Build Bionic"
+      name: "Build Ubuntu"
       before_install:
         - /bin/bash pre_install
-      script: ./builder.sh ubuntu-bionic ubuntu/bionic/
-    - script: ./builder.sh ubuntu-xenial ubuntu/xenial/
+      script: ./builder.sh ubuntu ubuntu/
+    - script: ./builder.sh alpine alpine/
       before_install:
         - /bin/bash pre_install
-      name: "Build Xenial"
+      name: "Build Alpine"

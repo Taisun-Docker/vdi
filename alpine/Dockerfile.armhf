@@ -1,0 +1,33 @@
+FROM lsiobase/alpine:arm32v7-3.9
+LABEL maintainer="Thelamer"
+
+RUN \
+ echo "**** install deps ****" && \
+ apk add --no-cache \
+        dbus \
+        docker \
+	openbox \
+        openssh-client \
+        pulseaudio \
+        setxkbmap \
+        sudo \
+        ttf-freefont \
+        xauth \
+        xf86-input-keyboard \
+        xf86-input-mouse \
+        xf86-input-synaptics \
+	xorg-server \
+        xrdp \
+	xterm && \
+ apk add --no-cache -X http://dl-cdn.alpinelinux.org/alpine/edge/testing \
+	xorgxrdp && \
+ echo "**** Cleanup ****" && \
+ rm -rf \
+	/tmp/*
+
+# add local files
+COPY /alpineroot /
+
+# ports and volumes
+EXPOSE 3389
+VOLUME /config

@@ -1,0 +1,10 @@
+#!/usr/bin/with-contenv bash
+
+# Give abc a sudo shell for development
+chsh abc -s /bin/bash
+sed -e 's/# %wheel ALL=(ALL) NOPASSWD: ALL/%wheel ALL=(ALL) NOPASSWD: ALL/g' \
+	-i /etc/sudoers
+sed -e 's/^wheel:\(.*\)/wheel:\1,abc/g' -i /etc/group
+
+# permissions
+chown -R abc:abc /config

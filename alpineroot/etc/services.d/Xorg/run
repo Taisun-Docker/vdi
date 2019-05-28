@@ -1,0 +1,8 @@
+#!/usr/bin/with-contenv bash
+
+# Execute Xorg
+/usr/bin/Xorg :1 \
+	-displayfd 3 \
+	-config /etc/X11/xrdp/xorg.conf \
+	-noreset \
+	-nolisten tcp

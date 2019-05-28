@@ -1,6 +1,0 @@
-#!/usr/bin/with-contenv bash
-
-/usr/bin/Xorg -noreset \
-	+extension GLX +extension RANDR +extension RENDER \
-	-logfile /var/log/xorg.log \
-	-config /etc/X11/xorg.conf :0
