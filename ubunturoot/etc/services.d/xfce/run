@@ -1,4 +1,14 @@
-#!/usr/bin/with-contenv bash
+#!/bin/execlineb -P
 
-DISPLAY=:1 HOME=/config exec \
-	s6-setuidgid abc startxfce4
+# Redirect stderr to stdout.
+fdmove -c 2 1
+
+# Wait until Xorg is running
+if { s6-svwait -t 10000 -U /var/run/s6/services/Xorg/ }
+
+# Drop privileges and set env
+s6-setuidgid abc
+s6-env DISPLAY=:1 HOME=/config
+
+# Execute xfce
+/usr/bin/startxfce4
